@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "formal-airway-315614",
+  "private_key_id": "727bd14e25cb2301e9a4098de7f8d6c23bb1af2c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDuZbOs7YOJqgJB\ntCIN5U9Kjy/zYKUYZ5z9Dys0gY47AISIVKaD+2aEXS+w9uaR15XcEMMznbgwSAY8\nSh2cZEvORcJo5fYIFhgylqH2YZLjJnn7UWbX49qWCJoJCmbWFR5BnkrtXqqBvdnv\ns4av8t4Pq2y7obK3vPnE2lw/e7kEw/VKqiUhQq257iqfc06w2KCi/nmW9yv8obWZ\nE3UFPu0o+jQI4ZVgK+JYbmGyjzcYfQw7qHul5zzF+KvbQQoSkzSv2yGBKiicIgqE\nuRNX6tcozH6QhLp9J+u6etmqfrn6fzns1IVJtcMvr3CJZ9+3WxaJEkF5y/+rV4jp\n9Er70CrfAgMBAAECggEAK0e3ePud185PnpIPZKpu3MBmGi8/idC1xZONanji039i\nkEWd/XQUxo8Ma3pHnc6f3FYGukY1/D33M9bYzV3ADXDIvLaTFiC8v+JtAQfx3N9N\nYf0DSMqLEpX5MQ78YH1xAsS0IagAGJHZERVsrGDRQ9MBaIcQpR7f0Yc7HCNgEacQ\nF3LTaCckPJKNjJeKkrg/+c25pnUV+FrR6Pz1ezmTCHQtnLyTkJ9P2ye1O7m71omU\noOuSTyDCZ7mlCiQT0gTGpWRvj26z/j+d+N62wqggqLXWkpJZLeB4b/4ssFPvz0Rt\nbfwRkdFXqJUZLlUVqb95y2hJL94BeUGxlRoXlgVbwQKBgQD7+Q4h22yrPGmAfY6Q\nEFavwYW2tLMtA8Z+QGGZMa0HwEK3HdoidFvgHAndcCIWt5TeSA0pjnegJac66iUw\nQjR0BpPkl+0IdKnYzgvEFcyKFrTX3wjQ0/ueUCXUH9yf9FdOKpQ+aY5584v7hYFf\nhm6es7gySlfhzlIALf8610IF0QKBgQDyNRoqXkRAHnFMH/oFR9fRmFKwdkgIJmkh\nqYi1pxg85LXO6xFtCv4AB/0O7BUXbAWWrokMaC9U1nOttVAMzimi4RFtSEqxdEpy\nKmtkUI7jfnr8Rqhe4FkirJbCs4spk20lJ7t9A0qVfXIKF4R5EqW7jCbhhk93mhS/\n4npy5lphrwKBgQCs+454L+uqow7K52e3/3+DqZfilqtre+wJQKnAQhpH9/XVQOlA\nPiHU+WrMWu8MKXxKHazrmqMFjtP/3j8pokngXaOqi6Ju66iu7sWlGFITewMsMDId\nK2rShLNzrWwJY/WL9C9RqaXmkwzG4CCxM9k9mqQZ4m/y1XH2LZ3LB3yMAQKBgQCn\nENPUh6NCKv1xSdk2TUDjdNMMnvm+jWgU7RC8Y96HGicB7AjgEyXytY/q/BLsTflo\n30jvAuoq9aVjG151BruXevF/VM8YqiMzrmjXD+4Po02Ht+EpWEyDa1KuSBPkgKlX\naJmdeGi4xoejyGb68E7bF6g2BWPJFsHbPYfCu3t6RwKBgB9U7BVzjE6wnAPmwupE\nJi+DwzFO1qFszWDL4wY5LloBhWkqlgy31I4H4eJyrv0u7TcWPaRsjsVSxx9yJSk1\n2wFNvTQGEYEesYp8av9anIoyktBO5g4mzuu3WVo5o2HACP8xJWl+uNiVhYFlEmk9\n9BivyapOPQADf4Eyp4YMWMmo\n-----END PRIVATE KEY-----\n",
+  "client_email": "sign-language-webapp@formal-airway-315614.iam.gserviceaccount.com",
+  "client_id": "107507155404518909772",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sign-language-webapp%40formal-airway-315614.iam.gserviceaccount.com"
+}
