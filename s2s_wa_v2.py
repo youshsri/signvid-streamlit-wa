@@ -53,7 +53,7 @@ def download_YT_video(url, video_name, directory_name):
         video_file_path = video_name + '.mp4'
 
         # create path
-        path = '/' + directory_name + '/' + video_file_path
+        path = directory_name + '/' + video_file_path
 
         # downloads video into local directory
         best.download(filepath=path, quiet=False)
@@ -74,10 +74,10 @@ def get_wav(dir, path):
     audioclip = AudioFileClip(path)
 
     # define path to export mp3 file to
-    path_mp3 = "/" + dir + "/" + "audio.mp3"
+    path_mp3 =  os.path.abspath(dir) + "/" + "audio.mp3"
 
     # define path to export wav file to
-    path_wav = "/" + dir + "/" + "audio.wav"
+    path_wav =  os.path.abspath(dir) + "/" + "audio.wav"
 
     # export mp3 file to specified location
     audioclip.write_audiofile(path_mp3)
@@ -101,6 +101,10 @@ def main(url):
     video_name, path = download_YT_video(url, video_name, dir_name)
 
     # retrieve wav file
-    get_wav(dir_name, path)
+    try:
+        get_wav(dir_name, path)
+
+    except:
+        return os.listdir(dir_name)
 
 

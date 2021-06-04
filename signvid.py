@@ -17,6 +17,8 @@ st.markdown("<p style='text-align: center; color: black;'>Enter a YouTube URL an
 
 video_file_name = st.text_input(" ")
 
+path = ""
+
 # check if file is local to directory or url link to YouTube
 if video_file_name:
 
@@ -32,8 +34,7 @@ if video_file_name:
     if "youtube" in video_file_name:
         st.video(video_file_name)
 
-        s2s.main(video_file_name)
-        dir = os.listdir("/user_request1/")
+        path = s2s.main(video_file_name)
 
         # video_file = open('with_signs.mp4', 'rb')
         # video_bytes = video_file.read()
@@ -57,5 +58,5 @@ contact = st.sidebar.beta_expander("Get in touch")
 contact.write("For any questions or concerns, please contact us on: ...")
 #Let's rewrite this
 
-directory = st.sidebar.beta_expander("Directory")
-directory.write(dir)
+directory = st.sidebar.beta_expander("Path")
+directory.write(path)
