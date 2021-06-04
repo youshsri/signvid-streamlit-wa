@@ -1,4 +1,4 @@
-FROM python:3.8.3
+FROM gcr.io/google-appengine/python
 WORKDIR /app
 COPY requirements.txt ./requirements.txt
 COPY s2s_wa_v2.py ./s2s_wa_v2.py

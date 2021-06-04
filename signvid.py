@@ -11,7 +11,7 @@ with col2:
 #st.title('Welcome to SignVid!')
 st.markdown("<h1 style='text-align: center; color: black;'>Welcome to SignVid!</h1>", unsafe_allow_html=True)
 #st.subheader('Enter a YouTube URL and we will translate it into British Sign Language')
-st.markdown("<p style='text-align: center; color: black;'>Enter a YouTube URL and we will translate it into British Sign Language", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: black;'>Enter a YouTube URL and we will translate it into Sign Supported English", unsafe_allow_html=True)
 
 # video_url = st.text_input("Enter text here")
 
