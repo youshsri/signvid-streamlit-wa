@@ -74,10 +74,10 @@ def get_wav(dir, path):
     audioclip = AudioFileClip(path)
 
     # define path to export mp3 file to
-    path_mp3 =  os.path.abspath(dir) + "/" + "audio.mp3"
+    path_mp3 =  os.path.relpath(dir) + "/audio.mp3"
 
     # define path to export wav file to
-    path_wav =  os.path.abspath(dir) + "/" + "audio.wav"
+    path_wav =  os.path.relpath(dir) + "/audio.wav"
 
     # export mp3 file to specified location
     audioclip.write_audiofile(path_mp3)
