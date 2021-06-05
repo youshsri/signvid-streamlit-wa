@@ -49,10 +49,14 @@ def download_YT_video(url, video_name, directory_name):
     This function requires a url from the user and a filename for the saved file.
     '''
 
-    try:
-        # create pafy object 
-        video = pf.new(url)
+    
+    # create pafy object 
+    video = pf.new(url)
 
+    # check if video is longer than 10 minutes
+    if int(video.length) >= 600:
+        raise Exception("Video is too long!")
+    else:
         # gets best video stream of mp4 format
         best = video.getbest(preftype="mp4")
 
@@ -67,8 +71,6 @@ def download_YT_video(url, video_name, directory_name):
 
         # return filename
         return video_file_name
-    except:
-        raise ValueError("URL is not valid")
     
 def get_wav(dir, video_file_name):
     
@@ -77,7 +79,7 @@ def get_wav(dir, video_file_name):
     The .wav file has the name enter
     '''
     
-    # change to user_request directory and 
+    # change to user_request directory 
     os.chdir(dir)
 
     # create an AudioFileClip instance of mp4 file downloaded
@@ -142,26 +144,32 @@ def create_subclips(wav_file):
 
 def main(url):
 
-    # check if any user requests already exist
-    dir_name = check_existing_user_requests()
+    try:
+        # check if any user requests already exist
+        dir_name = check_existing_user_requests()
 
-    # pre-define length of clips that will be translated
-    videolength = 10
+        # pre-define length of clips that will be translated
+        videolength = 10
 
-    # name that the video will have when saved on your computer
-    video_name = 'video_file'
+        # name that the video will have when saved on your computer
+        video_name = 'video_file'
 
-    # download YT video and return file name
-    video_file_name = download_YT_video(url, video_name, dir_name)
+        # download YT video and return file name
+        video_file_name = download_YT_video(url, video_name, dir_name)
 
-    # retrieve wav file
-    wav_file = get_wav(dir_name, video_file_name)
+        # retrieve wav file
+        wav_file = get_wav(dir_name, video_file_name)
 
-    # create subclips
-    create_subclips(wav_file)
+        # create subclips
+        create_subclips(wav_file)
 
-    # return to original directory and remove user_request to save memory
-    os.chdir("..") 
-    shutil.rmtree(dir_name)
-
-    return os.listdir()
+        # return to original directory and remove user_request to save memory
+        os.chdir("..") 
+        shutil.rmtree(dir_name)
+        
+        return True
+    
+    except:
+        # if video duration exceeds 10 minutes, then remove user_request directory and return error
+        shutil.rmtree(dir_name)
+        return False
