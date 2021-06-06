@@ -1,8 +1,8 @@
 SpeechRecognition==3.8.1
 moviepy==1.0.3
-pydub==0.24.1
 pafy==0.5.5
 youtube-dl==2021.5.16
 streamlit==0.82.0
 ffmpeg-python==0.2.0
 pytictoc==1.5.2
+google-cloud-storage==1.38.0

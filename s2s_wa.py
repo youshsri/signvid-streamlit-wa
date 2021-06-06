@@ -125,13 +125,12 @@ def pair_word_with_signvideo(word):
     return sign_video
 
 def get_signs(transcript, videolength):
-    ''' Takes a transcript and the length of the video that is the transcript of.
+    ''' 
+    Takes a transcript and the length of the video that is the transcript of.
     It returns a video of max that length of a signer doing those signs.
     '''
 
     video_array = []
-
-    print(transcript)
 
     transcript = transcript.split(" ")
     #Splitting the string into a list of strings

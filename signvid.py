@@ -1,6 +1,7 @@
 import streamlit as st
-import os
 import s2s_wa_v2 as s2s
+import os
+import shutil
 
 # create columns to organise web app
 col1,col2,col3 = st.beta_columns([3.3,1,5])
@@ -27,21 +28,22 @@ if URL:
             st.video(URL)
 
             with st.spinner("Processing video..."):
-                runtime = s2s.main(URL)
+                runtime, dirname = s2s.main(URL)
 
             if runtime == False:
                 st.error('''Sorry, the video you entered is longer than 10 minutes. 
                 Please try a shorter video.''')
-            elif runtime == True:
+            else:
                 st.balloons()
                 st.success("Video processed! You can view your translated video below:")
+                st.video(runtime)
+
+                # return to original directory and remove user_request to save memory
+                if st.button("Clear"):
+                    shutil.rmtree(dirname)
+
         except:
             st.error('''Sorry, the text you entered is not a valid YouTube URL. Please try again.''')
-
-
-        # video_file = open('with_signs.mp4', 'rb')
-        # video_bytes = video_file.read()
-        # st.video(video_bytes)
 
 about = st.sidebar.beta_expander("About us")
 about.write("We are a team of students from Imperial College London who are developing this web application for our DAPP2 project!")

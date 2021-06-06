@@ -1,7 +1,7 @@
 # import all necessary libraries
 from moviepy.editor import VideoFileClip, concatenate_videoclips, CompositeVideoClip, vfx, AudioFileClip
-from pydub import AudioSegment, silence
 import speech_recognition as sr
+import googlecloudstorage as gcs
 import pafy as pf
 import os
 import shutil
@@ -49,7 +49,6 @@ def download_YT_video(url, video_name, directory_name):
     This function requires a url from the user and a filename for the saved file.
     '''
 
-    
     # create pafy object 
     video = pf.new(url)
 
@@ -69,18 +68,21 @@ def download_YT_video(url, video_name, directory_name):
         # downloads video into local directory
         best.download(filepath=path, quiet=False)
 
+        # change directory
+        os.chdir(directory_name)
+
+        # get VideoFileClip instance of original video
+        org_video = VideoFileClip(video_file_name)
+
         # return filename
-        return video_file_name
+        return video_file_name, org_video
     
-def get_wav(dir, video_file_name):
+def get_wav(video_file_name):
     
     '''
     Takes an mp4 file and converts into a .wav file that can be transcribed.
     The .wav file has the name enter
     '''
-    
-    # change to user_request directory 
-    os.chdir(dir)
 
     # create an AudioFileClip instance of mp4 file downloaded
     audioclip = AudioFileClip(video_file_name)
@@ -91,6 +93,10 @@ def get_wav(dir, video_file_name):
     # export mp3 file to specified location
     audioclip.write_audiofile(filename_wav)
 
+    # remove mp4 file
+    os.remove(video_file_name)
+
+    # return filename of wav file
     return filename_wav
 
 def create_subclips(wav_file):
@@ -140,7 +146,166 @@ def create_subclips(wav_file):
 
         clips[subclips].write_audiofile(subclips + '.wav')
 
+    # delete wav file once subclip process is completed
+    os.remove(wav_file)
+
     return clips
+
+def get_transcript(subclip_dict):
+    
+    '''
+    This is function uses Google's speech recognition engine to convert the audio to text.
+    Takes a filename and returns a string.
+    '''
+
+    # initialise complete transcript list
+    complete_transcript = []
+
+    # define filename extension
+    filename_ext = ".wav"
+
+    # use the audio file as the audio source
+    r = sr.Recognizer()
+
+    for key in subclip_dict:
+
+        # get respective filename of key
+        filename = key + filename_ext
+
+        # read the entire audio file
+        with sr.AudioFile(filename) as source:
+            audio = r.record(source)
+
+        # apply speech recognition to get transcript as a list
+        # delete subclip after speech recognition on it is complete
+        try: 
+            complete_transcript.append(r.recognize_google(audio))
+            os.remove(filename)
+        # if silent (error), return None
+        except: 
+            complete_transcript.append(None)
+            os.remove(filename)
+
+    # returns complete transcript of video
+    return complete_transcript
+
+def download_file(word):
+    
+    '''
+    Checks if the video is in the database or not.
+    '''
+
+    # retrieve path to json file
+    path_json_file = os.path.split(os.getcwd())[0]+ "/signvid-servicekey.json"
+
+    # initialise google cloud storage connection using service account key
+    storage_client = gcs.initilise_gcs(path_json_file)
+
+    # access bucket in which SSE dataset is stored
+    bucket = storage_client.get_bucket("signvid.appspot.com")
+
+    # check if actual word or error
+    if word != None:
+        file_object = str(word) + ".mp4"
+
+        blob = bucket.get_blob("sse_dataset/" + file_object)
+
+        # check if sign exists in video database
+        if blob != None:
+            with open(file_object, "wb") as file:
+                storage_client.download_blob_to_file(blob, file)
+
+            return file_object
+
+        else:
+            return False
+
+    else: 
+        return False
+    
+def get_signs(transcript, videolength):
+    
+    ''' 
+    Takes a transcript and the length of the video that is the transcript of.
+    It returns a video of max that length of a signer doing those signs.
+    '''
+
+    # initialise necessary variables
+    video_array = []
+    sign_translations = {}
+    filename = ""
+    index = 0
+
+    # iterate through each segment transcribed in transcript
+    for segment in transcript:
+        
+        # check if segment was silent or not
+        if segment == None:
+            continue
+        
+        # else, follow this process
+        else:
+            
+            # splits sentence string into a list of word strings
+            segment = segment.split(" ")
+
+            for word in segment:
+                flag = download_file(word)
+
+                # check if respective sign for word was downloaded
+                if flag:
+                    
+                    # create filename 
+                    filename = flag
+
+                    # append file to list
+                    video_array.append(filename)
+
+            # initiate concatenation if video_array has more 1 file or more
+            if len(video_array) >= 1:
+
+                # retrieve first video as starting point for concatenation as VideoFileClip instance
+                sign_video = VideoFileClip(video_array[0])
+
+                # concatenation process
+                for i in range(1,len(video_array)):
+                    
+                    # make VideoFileClip instance of next sign video
+                    addition = VideoFileClip(video_array[i])
+
+                    # concatenation
+                    sign_video = concatenate_videoclips([sign_video, addition])
+                
+                # delete respective sign video to save memory
+                for video in video_array:
+                    if video in os.listdir():
+                        os.remove(video)
+                    else:
+                        continue
+                
+                # clear video_array for next segment
+                video_array.clear()
+                
+            # retrieve duration of sign translation
+            sign_video_dur = sign_video.duration
+
+            # if duration is longer, speed up the sign translations
+            if sign_video_dur > videolength:
+                factor = sign_video_dur/videolength
+
+                sign_video = sign_video.fx(vfx.speedx, factor)
+
+            # if duration is shorter, keep it at same speed
+            if sign_video_dur < videolength:
+                continue
+
+            # update index for key labels of sign_translations dictionary
+            index += 1
+
+            sign_translations["video" + str(index)] = sign_video
+
+    return sign_translations
+
 
 def main(url):
 
@@ -152,22 +317,43 @@ def main(url):
         videolength = 10
 
         # name that the video will have when saved on your computer
-        video_name = 'video_file'
+        video_name = "video_file"
 
         # download YT video and return file name
-        video_file_name = download_YT_video(url, video_name, dir_name)
+        video_file_name, original_vid = download_YT_video(url, video_name, dir_name)
 
         # retrieve wav file
-        wav_file = get_wav(dir_name, video_file_name)
+        wav_file = get_wav(video_file_name)
 
         # create subclips
-        create_subclips(wav_file)
+        subclip_dictionary = create_subclips(wav_file)
 
-        # return to original directory and remove user_request to save memory
-        os.chdir("..") 
-        shutil.rmtree(dir_name)
+        # get transcript of video
+        transcript = get_transcript(subclip_dictionary)
+
+        # get sign translations from transcript
+        sign_translations = get_signs(transcript, videolength)
+
+        # retrieve first sign translation for first segment of transcript
+        sign_concat = sign_translations["video1"]
+
+        # concatenation proces
+        for key in sign_translations:
+
+            if key != "video1":
+                
+                sign_concat = concatenate_videoclips([sign_concat, sign_translations[key]])
+
+        # composite sign videos onto original video
+        video = CompositeVideoClip([original_vid , sign_concat.set_position((0.6,0.5), relative = True)])
+
+        # define sign_video_filename for use
+        sign_video_filename = "with_signs.mp4"
+
+        # write composite video into directory
+        video.write_videofile(sign_video_filename)
         
-        return True
+        return sign_video_filename, dir_name
     
     except:
         # if video duration exceeds 10 minutes, then remove user_request directory and return error
