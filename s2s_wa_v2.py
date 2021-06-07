@@ -68,11 +68,11 @@ def download_YT_video(url, video_name, directory_name):
         # downloads video into local directory
         best.download(filepath=path, quiet=False)
 
+        # get VideoFileClip instance of original video
+        org_video = VideoFileClip(path)
+
         # change directory
         os.chdir(directory_name)
-
-        # get VideoFileClip instance of original video
-        org_video = VideoFileClip(video_file_name)
 
         # return filename
         return video_file_name, org_video
@@ -189,41 +189,36 @@ def get_transcript(subclip_dict):
     # returns complete transcript of video
     return complete_transcript
 
-def download_file(word):
+def retrieve_file(word, directory):
     
     '''
     Checks if the video is in the database or not.
     '''
 
-    # retrieve path to json file
-    path_json_file = os.path.split(os.getcwd())[0]+ "/signvid-servicekey.json"
-
-    # initialise google cloud storage connection using service account key
-    storage_client = gcs.initilise_gcs(path_json_file)
-
-    # access bucket in which SSE dataset is stored
-    bucket = storage_client.get_bucket("signvid.appspot.com")
-
     # check if actual word or error
     if word != None:
         file_object = str(word) + ".mp4"
 
-        blob = bucket.get_blob("sse_dataset/" + file_object)
+        # change directory to sse_dataset
+        os.chdir(".."), os.chdir("sse_dataset")
 
         # check if sign exists in video database
-        if blob != None:
-            with open(file_object, "wb") as file:
-                storage_client.download_blob_to_file(blob, file)
+        if file_object in os.listdir():
 
-            return file_object
+            file_path = os.getcwd() + "/" + file_object
+
+            file_clip = VideoFileClip(file_path)
+
+            return file_clip
 
         else:
+            os.chdir(".."), os.chdir(directory)
             return False
 
     else: 
         return False
     
-def get_signs(transcript, videolength):
+def get_signs(transcript, videolength, directory):
     
     ''' 
     Takes a transcript and the length of the video that is the transcript of.
@@ -233,7 +228,6 @@ def get_signs(transcript, videolength):
     # initialise necessary variables
     video_array = []
     sign_translations = {}
-    filename = ""
     index = 0
 
     # iterate through each segment transcribed in transcript
@@ -250,38 +244,31 @@ def get_signs(transcript, videolength):
             segment = segment.split(" ")
 
             for word in segment:
-                flag = download_file(word)
+                video = retrieve_file(word, directory)
 
                 # check if respective sign for word was downloaded
-                if flag:
+                if video != False:
                     
                     # create filename 
-                    filename = flag
+                    file_clip = video
 
                     # append file to list
-                    video_array.append(filename)
+                    video_array.append(file_clip)
 
             # initiate concatenation if video_array has more 1 file or more
             if len(video_array) >= 1:
 
                 # retrieve first video as starting point for concatenation as VideoFileClip instance
-                sign_video = VideoFileClip(video_array[0])
+                sign_video = video_array[0]
 
                 # concatenation process
                 for i in range(1,len(video_array)):
                     
                     # make VideoFileClip instance of next sign video
-                    addition = VideoFileClip(video_array[i])
+                    addition = video_array[i]
 
                     # concatenation
                     sign_video = concatenate_videoclips([sign_video, addition])
-                
-                # delete respective sign video to save memory
-                for video in video_array:
-                    if video in os.listdir():
-                        os.remove(video)
-                    else:
-                        continue
                 
                 # clear video_array for next segment
                 video_array.clear()
@@ -305,7 +292,6 @@ def get_signs(transcript, videolength):
             sign_translations["video" + str(index)] = sign_video
 
     return sign_translations
-
 
 def main(url):
 
@@ -332,7 +318,7 @@ def main(url):
         transcript = get_transcript(subclip_dictionary)
 
         # get sign translations from transcript
-        sign_translations = get_signs(transcript, videolength)
+        sign_translations = get_signs(transcript, videolength, dir_name)
 
         # retrieve first sign translation for first segment of transcript
         sign_concat = sign_translations["video1"]
@@ -345,15 +331,15 @@ def main(url):
                 sign_concat = concatenate_videoclips([sign_concat, sign_translations[key]])
 
         # composite sign videos onto original video
-        video = CompositeVideoClip([original_vid , sign_concat.set_position((0.6,0.5), relative = True)])
+        video = CompositeVideoClip([original_vid, sign_concat.set_position((0.6,0.5), relative = True)])
 
         # define sign_video_filename for use
         sign_video_filename = "with_signs.mp4"
 
         # write composite video into directory
-        video.write_videofile(sign_video_filename)
+        video.write_videofile(sign_video_filename, codec='libx264')
         
-        return sign_video_filename, dir_name
+        return sign_video_filename, dir_name, transcript
     
     except:
         # if video duration exceeds 10 minutes, then remove user_request directory and return error

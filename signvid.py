@@ -12,8 +12,10 @@ with col2:
 
 st.markdown("<h1 style='text-align: center; color: black;'>Welcome to SignVid!</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: black;'>Enter a YouTube URL and we will translate it into Sign Supported English", unsafe_allow_html=True)
-
-URL = st.text_input("Enter a YouTube URL here...")
+index = 0
+    
+URL = st.text_input("Enter a YouTube URL here...", key=index)
+index += 1
 
 # check if file is local to directory or url link to YouTube
 if URL:
@@ -28,19 +30,21 @@ if URL:
             st.video(URL)
 
             with st.spinner("Processing video..."):
-                runtime, dirname = s2s.main(URL)
+                runtime, dirname, transcript = s2s.main(URL)
 
             if runtime == False:
                 st.error('''Sorry, the video you entered is longer than 10 minutes. 
                 Please try a shorter video.''')
             else:
+                # deliver success message
                 st.balloons()
                 st.success("Video processed! You can view your translated video below:")
-                st.video(runtime)
 
-                # return to original directory and remove user_request to save memory
-                if st.button("Clear"):
-                    shutil.rmtree(dirname)
+                # read translated video and open it on user screen
+                video_file_path = os.getcwd() + "/" + runtime
+                video_file = open(video_file_path, "rb")
+                video_bytes = video_file.read()
+                st.video(video_bytes)
 
         except:
             st.error('''Sorry, the text you entered is not a valid YouTube URL. Please try again.''')
