@@ -1,7 +1,7 @@
 # import all necessary libraries
 from moviepy.editor import VideoFileClip, concatenate_videoclips, CompositeVideoClip, vfx, AudioFileClip
 import speech_recognition as sr
-import googlecloudstorage as gcs
+#import googlecloudstorage as gcs
 import pafy as pf
 import os
 import shutil
@@ -43,13 +43,13 @@ def check_existing_user_requests():
         return directory
 
 def download_YT_video(url, video_name, directory_name):
-    
+
     '''
     This function will return a YT video in mp4 format to a bucket in the Google Cloud Storage.
     This function requires a url from the user and a filename for the saved file.
     '''
 
-    # create pafy object 
+    # create pafy object
     video = pf.new(url)
 
     # check if video is longer than 10 minutes
@@ -76,9 +76,9 @@ def download_YT_video(url, video_name, directory_name):
 
         # return filename
         return video_file_name, org_video
-    
+
 def get_wav(video_file_name):
-    
+
     '''
     Takes an mp4 file and converts into a .wav file that can be transcribed.
     The .wav file has the name enter
@@ -152,7 +152,7 @@ def create_subclips(wav_file):
     return clips
 
 def get_transcript(subclip_dict):
-    
+
     '''
     This is function uses Google's speech recognition engine to convert the audio to text.
     Takes a filename and returns a string.
@@ -178,11 +178,11 @@ def get_transcript(subclip_dict):
 
         # apply speech recognition to get transcript as a list
         # delete subclip after speech recognition on it is complete
-        try: 
+        try:
             complete_transcript.append(r.recognize_google(audio))
             os.remove(filename)
         # if silent (error), return None
-        except: 
+        except:
             complete_transcript.append(None)
             os.remove(filename)
 
@@ -190,7 +190,7 @@ def get_transcript(subclip_dict):
     return complete_transcript
 
 def retrieve_file(word, directory):
-    
+
     '''
     Checks if the video is in the database or not.
     '''
@@ -215,12 +215,12 @@ def retrieve_file(word, directory):
             os.chdir(".."), os.chdir(directory)
             return False
 
-    else: 
+    else:
         return False
-    
+
 def get_signs(transcript, videolength, directory):
-    
-    ''' 
+
+    '''
     Takes a transcript and the length of the video that is the transcript of.
     It returns a video of max that length of a signer doing those signs.
     '''
@@ -232,14 +232,14 @@ def get_signs(transcript, videolength, directory):
 
     # iterate through each segment transcribed in transcript
     for segment in transcript:
-        
+
         # check if segment was silent or not
         if segment == None:
             continue
-        
+
         # else, follow this process
         else:
-            
+
             # splits sentence string into a list of word strings
             segment = segment.split(" ")
 
@@ -248,8 +248,8 @@ def get_signs(transcript, videolength, directory):
 
                 # check if respective sign for word was downloaded
                 if video != False:
-                    
-                    # create filename 
+
+                    # create filename
                     file_clip = video
 
                     # append file to list
@@ -263,16 +263,16 @@ def get_signs(transcript, videolength, directory):
 
                 # concatenation process
                 for i in range(1,len(video_array)):
-                    
+
                     # make VideoFileClip instance of next sign video
                     addition = video_array[i]
 
                     # concatenation
                     sign_video = concatenate_videoclips([sign_video, addition])
-                
+
                 # clear video_array for next segment
                 video_array.clear()
-                
+
             # retrieve duration of sign translation
             sign_video_dur = sign_video.duration
 
@@ -284,7 +284,20 @@ def get_signs(transcript, videolength, directory):
 
             # if duration is shorter, keep it at same speed
             if sign_video_dur < videolength:
-                continue
+
+                blackscreen = retrieve_file("blackscreen", directory)
+
+                print("Got blackscreen")
+
+                blackscreen_time = 10 - sign_video_dur
+
+                multiplier = 10 / blackscreen_time
+
+                blackscreen = blackscreen.fx(vfx.speedx, multiplier)
+
+                sign_video = concatenate_videoclips([sign_video, blackscreen])
+
+                print("Finished if statement")
 
             # update index for key labels of sign_translations dictionary
             index += 1
@@ -327,7 +340,7 @@ def main(url):
         for key in sign_translations:
 
             if key != "video1":
-                
+
                 sign_concat = concatenate_videoclips([sign_concat, sign_translations[key]])
 
         # composite sign videos onto original video
@@ -338,9 +351,9 @@ def main(url):
 
         # write composite video into directory
         video.write_videofile(sign_video_filename, codec='libx264')
-        
+
         return sign_video_filename, dir_name, transcript
-    
+
     except:
         # if video duration exceeds 10 minutes, then remove user_request directory and return error
         shutil.rmtree(dir_name)
