@@ -9,12 +9,14 @@ col1,col2,col3 = st.beta_columns([3.3,1,5])
 # centering of image
 with col2:
     st.image("SignVidLogo.jpg", width = 150)
-
-st.markdown("<h1 style='text-align: center; color: black;'>Welcome to SignVid!</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: black;'>Enter a YouTube URL and we will translate it into Sign Supported English", unsafe_allow_html=True)
+#Ideally change font to Verdana and have font size 14-16!!!
+#Deal with dark mode!!!
+#Color contrast
+st.markdown("<h1 style='font-family:Verdana; text-align: center; color: green;'>Welcome to SignVid!</h1>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family:Verdana; text-align: center; color: green;'>Enter a YouTube URL and we will translate it into Sign Supported English", unsafe_allow_html=True)
 index = 0
-    
-URL = st.text_input("Enter a YouTube URL here...", key=index)
+
+URL = st.text_input("")
 index += 1
 
 # check if file is local to directory or url link to YouTube
@@ -33,7 +35,7 @@ if URL:
                 runtime, dirname, transcript = s2s.main(URL)
 
             if runtime == False:
-                st.error('''Sorry, the video you entered is longer than 10 minutes. 
+                st.error('''Sorry, the video you entered is longer than 10 minutes.
                 Please try a shorter video.''')
             else:
                 # deliver success message
