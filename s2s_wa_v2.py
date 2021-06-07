@@ -1,5 +1,6 @@
 # import all necessary libraries
 from moviepy.editor import VideoFileClip, concatenate_videoclips, CompositeVideoClip, vfx, AudioFileClip
+from numpy.core.fromnumeric import resize
 import speech_recognition as sr
 #import googlecloudstorage as gcs
 import pafy as pf
@@ -205,9 +206,17 @@ def retrieve_file(word, directory):
         # check if sign exists in video database
         if file_object in os.listdir():
 
+            # create path of sign video
             file_path = os.getcwd() + "/" + file_object
 
+            # create VideoFileClip instance of sign video
             file_clip = VideoFileClip(file_path)
+
+            # exit to previous directory
+            os.chdir(".."), os.chdir(directory)
+
+            # ensures each sign video is same size
+            file_clip = file_clip.resize((320,240))
 
             return file_clip
 
@@ -272,12 +281,16 @@ def get_signs(transcript, videolength, directory):
 
                 # clear video_array for next segment
                 video_array.clear()
+            
+            # if no words are present in the sign database
+            else:
+                sign_video = retrieve_file("blackscreen", directory)
 
             # retrieve duration of sign translation
             sign_video_dur = sign_video.duration
 
             # if duration is longer, speed up the sign translations
-            if sign_video_dur > videolength:
+            if sign_video_dur >= videolength:
                 factor = sign_video_dur/videolength
 
                 sign_video = sign_video.fx(vfx.speedx, factor)
@@ -287,8 +300,6 @@ def get_signs(transcript, videolength, directory):
 
                 blackscreen = retrieve_file("blackscreen", directory)
 
-                print("Got blackscreen")
-
                 blackscreen_time = 10 - sign_video_dur
 
                 multiplier = 10 / blackscreen_time
@@ -296,8 +307,6 @@ def get_signs(transcript, videolength, directory):
                 blackscreen = blackscreen.fx(vfx.speedx, multiplier)
 
                 sign_video = concatenate_videoclips([sign_video, blackscreen])
-
-                print("Finished if statement")
 
             # update index for key labels of sign_translations dictionary
             index += 1
@@ -344,15 +353,18 @@ def main(url):
                 sign_concat = concatenate_videoclips([sign_concat, sign_translations[key]])
 
         # composite sign videos onto original video
-        video = CompositeVideoClip([original_vid, sign_concat.set_position((0.6,0.5), relative = True)])
+        video = CompositeVideoClip([original_vid, sign_concat.set_position(("right", "bottom"))])
 
         # define sign_video_filename for use
         sign_video_filename = "with_signs.mp4"
 
-        # write composite video into directory
-        video.write_videofile(sign_video_filename, codec='libx264')
+        # define path for video with signs
+        path = os.getcwd() + "/" + sign_video_filename
 
-        return sign_video_filename, dir_name, transcript
+        # write composite video into directory
+        video.write_videofile(sign_video_filename)
+
+        return path, dir_name, transcript
 
     except:
         # if video duration exceeds 10 minutes, then remove user_request directory and return error
