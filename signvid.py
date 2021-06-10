@@ -14,7 +14,7 @@ with col2:
 
 # color contrast with dark mode and use of font friendly towards dyslexic individuals - improves user experience
 st.markdown("<h1 style='font-family:Verdana; text-align: center; color: green;'>Welcome to SignVid!</h1>", unsafe_allow_html=True)
-st.markdown("<h2 style='font-family:Verdana; text-align: center; color: green;'>Enter a YouTube URL and we will translate it into Sign Supported English", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family:Verdana; text-align: center; color: green;'>Enter a YouTube URL below and we will translate it into Sign Supported English", unsafe_allow_html=True)
 index = 0
 
 # text input for the user
