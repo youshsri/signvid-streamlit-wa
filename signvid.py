@@ -12,6 +12,9 @@ col1,col2,col3 = st.beta_columns([3.3,1,5])
 with col2:
     st.image("SignVidLogo.jpg", width = 150)
 
+st.markdown("<h1 style='font-family:Verdana; text-align: center; color: red;'>Unfortunately this website is under construction... It will be running soon!</h1>", unsafe_allow_html=True)
+
+
 # color contrast with dark mode and use of font friendly towards dyslexic individuals - improves user experience
 st.markdown("<h1 style='font-family:Verdana; text-align: center; color: green;'>Welcome to SignVid!</h1>", unsafe_allow_html=True)
 st.markdown("<h2 style='font-family:Verdana; text-align: center; color: green;'>Enter a YouTube URL below and we will translate it into Sign Supported English", unsafe_allow_html=True)
@@ -39,7 +42,7 @@ if URL:
             if video == 1:
                 st.error('''Sorry, the video you entered is longer than 10 minutes.
                 Please try a shorter video.''')
-            
+
             # error raised if there are 10 user_request folders present or more
             elif video == 2:
                 st.error('''Sorry, you've made too many requests in a single session. Please refresh the page and start a new session.''')
@@ -54,7 +57,7 @@ if URL:
                 video.write_videofile(sign_video_path)
                 video_opened = open(sign_video_path, 'rb')
                 video_bytes = video_opened.read()
-                
+
                 # deliver success message
                 st.balloons()
                 st.success("Video processed! You can view your translated video below:")
@@ -83,6 +86,6 @@ feedback.write("We'd love to hear your feedback on how we can improve this servi
 
 # acknowledgements sidebar
 acknowledge = st.sidebar.beta_expander("Acknowledgements")
-acknowledge.write('''We'd like to thank the Pace Centre for providing such an intellectually stimulating project! 
-We'd also like to thank the people at SignStation from the University of Bristol for providing sign videos necessary 
+acknowledge.write('''We'd like to thank the Pace Centre for providing such an intellectually stimulating project!
+We'd also like to thank the people at SignStation from the University of Bristol for providing sign videos necessary
 for our app's translation process!''')
